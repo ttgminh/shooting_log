@@ -38,3 +38,20 @@ def total_shots_fired():
     """
     df = fetch_data(query)
     return df["total_shots"].iloc[0]
+
+# Streamlit App
+st.title("Shooting Log - Gun Statistics and Progress")
+
+# Display total time at the range
+st.header("Total Time Spent at the Range")
+total_time = total_time_at_range()
+if total_time is None or not isinstance(total_time, (int, float)):
+    total_time = 0  # Default value if total_time is invalid
+st.metric("Total Time (Minutes)", total_time)
+
+# Display total shots fired
+st.header("Total Shots Fired")
+total_shots = total_shots_fired()
+if total_shots is None or not isinstance(total_shots, (int, float)):
+    total_shots = 0  # Default value if total_shots is invalid
+st.metric("Total Shots", total_shots)
