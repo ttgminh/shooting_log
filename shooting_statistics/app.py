@@ -65,30 +65,29 @@ def most_popular_gun():
 def session_details():
     query = """
         SELECT 
-    s.session_id,
-    s.date,
-    s.time,
-    s.target_type,
-    g.name AS gun_name,
-    a.manufacturer AS ammo_manufacturer,
-    a.type AS ammo_type,
-    a.caliber AS ammo_caliber,
-    sd.rounds_fired
-    FROM 
-    session s
-    JOIN 
-    session_details sd ON s.session_id = sd.session_id
-    JOIN 
-    gun g ON sd.gun_id = g.gun_id
-    JOIN 
-    ammo a ON sd.ammo_id = a.ammo_id
-    ORDER BY 
-    s.date DESC, s.time DESC
-    LIMIT 5;
-
+            s.session_id,
+            s.date,
+            s.time,
+            s.target_type,
+            g.name AS gun_name,
+            a.manufacturer AS ammo_manufacturer,
+            a.type AS ammo_type,
+            a.caliber AS ammo_caliber,
+            sd.rounds_fired
+        FROM 
+            session s
+        JOIN 
+            session_details sd ON s.session_id = sd.session_id
+        JOIN 
+            gun g ON sd.gun_id = g.gun_id
+        JOIN 
+            ammo a ON sd.ammo_id = a.ammo_id
+        ORDER BY 
+            s.date DESC, s.time DESC
+        LIMIT 5;
     """
     df = fetch_data(query)
-    return
+    return df
 
 # Streamlit App
 
