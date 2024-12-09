@@ -41,5 +41,5 @@ st.title("Shooting Log - Gun Statistics and Progress")
 st.header("Total Time Spent at the Range")
 total_time = total_time_at_range()
 if total_time is None or not isinstance(total_time, (int, float)):
-    total_time = 100  # Default value if total_time is invalid
-st.write(total_time)
+    total_time = 0  # Default value if total_time is invalid
+st.metric("",total_time)
