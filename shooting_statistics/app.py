@@ -62,6 +62,11 @@ def most_popular_gun():
     return popular_gun
 
 # Streamlit App
+
+#Set page configuration to wide mode
+st.set_page_config(layout="wide")
+
+# Set page title
 st.title("Shooting Log - Gun Statistics and Progress")
 
 # Display metrics in columns
