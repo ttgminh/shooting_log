@@ -28,18 +28,10 @@ def total_time_at_range():
         FROM session;
     """
     df = fetch_data(query)
-    if df.empty or df["total_time"].iloc[0] is None:
-        return 0
-    return df["total_time"].iloc[0]
-
-# Query 2: Total shots fired
-def total_shots_fired():
-    query = """
-        SELECT SUM(rounds_fired) AS total_shots
-        FROM session_details;
-    """
-    df = fetch_data(query)
-    return df["total_shots"].iloc[0]
+    total_time = df["total_time"].iloc[0]
+    if isinstance(total_time, Decimal):
+        total_time = float(total_time)
+    return total_time
 
 # Streamlit App
 st.title("Shooting Log - Gun Statistics and Progress")
@@ -50,10 +42,3 @@ total_time = total_time_at_range()
 if total_time is None or not isinstance(total_time, (int, float)):
     total_time = 100  # Default value if total_time is invalid
 st.write(total_time)
-
-# Display total shots fired
-st.header("Total Shots Fired")
-total_shots = total_shots_fired()
-if total_shots is None or not isinstance(total_shots, (int, float)):
-    total_shots = 100  # Default value if total_shots is invalid
-st.metric("Total Shots", total_shots)
