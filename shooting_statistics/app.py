@@ -58,7 +58,7 @@ def most_popular_gun():
         limit 1;
     """
     df = fetch_data(query)
-    popular_gun = df["gun_name"].iloc[0]
+    popular_gun = df["name"].iloc[0]
     return popular_gun
 
 # Streamlit App
@@ -89,4 +89,4 @@ with col3:
     popular_gun = most_popular_gun()
     if popular_gun is None or not isinstance(popular_gun, str):
         popular_gun = "N/A"  # Default value if popular_gun is invalid
-    st.write(popular_gun)
+    st.metric("", popular_gun)
