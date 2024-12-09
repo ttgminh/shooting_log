@@ -47,7 +47,7 @@ st.header("Total Time Spent at the Range")
 total_time = total_time_at_range()
 if total_time is None or not isinstance(total_time, (int, float)):
     total_time = 100  # Default value if total_time is invalid
-st.metric("Total Time (Minutes)", total_time)
+st.write(total_time)
 
 # Display total shots fired
 st.header("Total Shots Fired")
