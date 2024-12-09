@@ -31,7 +31,7 @@ def total_time_at_range():
     df = fetch_data(query)
     total_time = df["total_time"].iloc[0]
     if isinstance(total_time, Decimal):
-        total_time = float(total_time)
+        total_time = int(total_time)
     return total_time
 
 # Query 2: Total number of shots fired
@@ -74,7 +74,7 @@ col1, col2, col3 = st.columns(3)
 
 # Display total time at the range
 with col1:
-    st.subheader("Total Time Spent at the Range (Minutes)")
+    st.subheader("Total Minutes Spent at the Range")
     total_time = total_time_at_range()
     if total_time is None or not isinstance(total_time, (int, float)):
         total_time = 0  # Default value if total_time is invalid
