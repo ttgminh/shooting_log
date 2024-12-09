@@ -2,6 +2,7 @@ import streamlit as st
 import mysql.connector
 import pandas as pd
 import matplotlib.pyplot as plt
+from decimal import Decimal
 
 # Connect to AWS RDS Database
 def get_connection():
