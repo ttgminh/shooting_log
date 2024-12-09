@@ -28,6 +28,8 @@ def total_time_at_range():
         FROM session;
     """
     df = fetch_data(query)
+    if df.empty or df["total_time"].iloc[0] is None:
+        return 0
     return df["total_time"].iloc[0]
 
 # Query 2: Total shots fired
