@@ -65,15 +65,15 @@ def most_popular_gun():
 def session_details():
     query = """
         SELECT 
-            s.session_id,
-            s.date,
-            s.time,
-            s.target_type,
-            g.name AS gun_name,
-            a.manufacturer AS ammo_manufacturer,
-            a.type AS ammo_type,
-            a.caliber AS ammo_caliber,
-            sd.rounds_fired
+            s.session_id as "Session Number",
+            s.date as "Date",
+            s.duration_minutes as "Duration (minutes)",
+            s.target_type as "Target Type",
+            g.name AS "Gun Name",
+            a.manufacturer AS "Ammo Manufacturer",
+            a.type AS "Ammo Type",
+            a.caliber AS "Ammo Caliber",
+            sd.rounds_fired as "Rounds Fired"
         FROM 
             session s
         JOIN 
