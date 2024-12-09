@@ -61,6 +61,35 @@ def most_popular_gun():
     popular_gun = df["name"].iloc[0]
     return popular_gun
 
+#query 4: Session details
+def session_details():
+    query = """
+        SELECT 
+    s.session_id,
+    s.date,
+    s.time,
+    s.target_type,
+    g.name AS gun_name,
+    a.manufacturer AS ammo_manufacturer,
+    a.type AS ammo_type,
+    a.caliber AS ammo_caliber,
+    sd.rounds_fired
+    FROM 
+    session s
+    JOIN 
+    session_details sd ON s.session_id = sd.session_id
+    JOIN 
+    gun g ON sd.gun_id = g.gun_id
+    JOIN 
+    ammo a ON sd.ammo_id = a.ammo_id
+    ORDER BY 
+    s.date DESC, s.time DESC
+    LIMIT 5;
+
+    """
+    df = fetch_data(query)
+    return
+
 # Streamlit App
 
 #Set page configuration to wide mode
@@ -95,3 +124,8 @@ with col3:
     if popular_gun is None or not isinstance(popular_gun, str):
         popular_gun = "N/A"  # Default value if popular_gun is invalid
     st.metric("", popular_gun)
+
+# Display session details
+st.subheader("Recent Sessions")
+df = session_details()
+st.write(df)
