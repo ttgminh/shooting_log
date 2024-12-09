@@ -74,7 +74,7 @@ col1, col2, col3 = st.columns(3)
 
 # Display total time at the range
 with col1:
-    st.header("Total Time Spent at the Range (Minutes)")
+    st.subheader("Total Time Spent at the Range (Minutes)")
     total_time = total_time_at_range()
     if total_time is None or not isinstance(total_time, (int, float)):
         total_time = 0  # Default value if total_time is invalid
@@ -82,7 +82,7 @@ with col1:
 
 # Display total number of shots fired
 with col2:
-    st.header("Total Shots Fired")
+    st.subheader("Total Shots Fired")
     total_shots = total_shots_fired()
     if total_shots is None or not isinstance(total_shots, int):
         total_shots = 0  # Default value if total_shots is invalid
@@ -90,7 +90,7 @@ with col2:
 
 # Display most popular gun name
 with col3:
-    st.header("Most Popular Gun")
+    st.subheader("Most Popular Gun")
     popular_gun = most_popular_gun()
     if popular_gun is None or not isinstance(popular_gun, str):
         popular_gun = "N/A"  # Default value if popular_gun is invalid
