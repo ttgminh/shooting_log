@@ -67,7 +67,7 @@ def most_popular_gun():
 st.set_page_config(layout="wide")
 
 # Set page title
-st.title("Shooting Log - Gun Statistics and Progress")
+st.title("Shooting Log - Gun Statistics and Progress of Minh Tran")
 
 # Display metrics in columns
 col1, col2, col3 = st.columns(3)
