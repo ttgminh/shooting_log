@@ -38,7 +38,7 @@ def total_time_at_range():
 st.title("Shooting Log - Gun Statistics and Progress")
 
 # Display total time at the range
-st.header("Total Time Spent at the Range")
+st.header("Total Time Spent at the Range (Minutes)")
 total_time = total_time_at_range()
 if total_time is None or not isinstance(total_time, (int, float)):
     total_time = 0  # Default value if total_time is invalid
