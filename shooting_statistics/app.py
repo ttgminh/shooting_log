@@ -37,8 +37,8 @@ def total_time_at_range():
 # Query 2: Total number of shots fired
 def total_shots_fired():
     query = """
-        SELECT SUM(shots_fired) AS total_shots
-        FROM session;
+        SELECT SUM(rounds_fired) AS total_shots
+        FROM session_details;
     """
     df = fetch_data(query)
     total_shots = df["total_shots"].iloc[0]
@@ -49,11 +49,13 @@ def total_shots_fired():
 # Query 3: Most popular gun name
 def most_popular_gun():
     query = """
-        SELECT gun_name, COUNT(*) AS usage_count
-        FROM session
-        GROUP BY gun_name
-        ORDER BY usage_count DESC
-        LIMIT 1;
+        select name, count(session_details.gun_id)
+        from gun
+        join session_details
+        on session_details.gun_id = gun.gun_id
+        group by name
+        order by (session_details.gun_id)
+        limit 1;
     """
     df = fetch_data(query)
     popular_gun = df["gun_name"].iloc[0]
