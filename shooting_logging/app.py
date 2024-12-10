@@ -19,7 +19,7 @@ def verify_password(input_password):
     return input_password == password
 
 # Helper functions
-def insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, notes):
+def insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, gun_notes):
     """Insert a gun if it doesn't exist, otherwise return its gun_id."""
     conn = get_connection()
     cursor = conn.cursor()
