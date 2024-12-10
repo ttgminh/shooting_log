@@ -181,7 +181,7 @@ with st.form("unified_form"):
     ownership_options = ["Personal", "Rental"]
     ownership_type = st.selectbox("Ownership Type", ownership_options)
     ownership_type = ownership_type.lower()
-    notes = st.text_area("Notes (optional)")
+    gun_notes = st.text_area("Notes (optional)")
     name = f"{manufacturer} {model}"
 
     # Ammo Details
