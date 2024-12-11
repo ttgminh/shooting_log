@@ -207,7 +207,7 @@ with st.form("unified_form"):
         if password == st.secrets["EDIT_PASSWORD"]:
             try:
                 # Insert gun and ammo
-                gun_id = insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, notes)
+                gun_id = insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, gun_notes)
                 ammo_id = insert_or_get_ammo(ammo_manufacturer, ammo_type, ammo_caliber, cost_per_round, ammo_notes)
 
             # Insert session and link details
