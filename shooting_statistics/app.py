@@ -3,6 +3,8 @@ import mysql.connector
 import pandas as pd
 import matplotlib.pyplot as plt
 from decimal import Decimal
+import numpy as np
+import plotly.express as px
 
 # Connect to AWS RDS Database
 def get_connection():
@@ -89,42 +91,97 @@ def session_details():
     df = fetch_data(query)
     return df
 
+#query 5: Type of ammo used, caliber and rounds fired
+def ammo_details():
+    query = """
+        SELECT 
+            a.type as "Ammo Type",
+            a.caliber as "Ammo Caliber",
+            SUM(sd.rounds_fired) as "Total Rounds Fired"
+        FROM 
+            ammo a
+        JOIN 
+            session_details sd ON a.ammo_id = sd.ammo_id
+        GROUP BY 
+            a.type, a.caliber
+        ORDER BY 
+            SUM(sd.rounds_fired) DESC;
+    """
+    df = fetch_data(query)
+    return df
+
 # Streamlit App
+
+# Set default colormap to inferno
+plt.rcParams['image.cmap'] = 'inferno'
 
 #Set page configuration to wide mode
 st.set_page_config(layout="wide")
 
 # Set page title
-st.title("Shooting Log - Gun Statistics and Progress of Minh Tran")
+st.title("Gun Range Statistics Minh Tran")
 
 # Display metrics in columns
 col1, col2, col3 = st.columns(3)
 
 # Display total time at the range
 with col1:
-    st.subheader("Total Minutes Spent at the Range")
+    st.markdown("<h3 style='text-align: center;'>Total Minutes Spent at Range</h3>", unsafe_allow_html=True)
     total_time = total_time_at_range()
     if total_time is None or not isinstance(total_time, (int, float)):
         total_time = 0  # Default value if total_time is invalid
-    st.metric("", total_time)
+    st.markdown(f"<h1 style='text-align: center;'>{total_time}</h1>", unsafe_allow_html=True)
 
 # Display total number of shots fired
 with col2:
-    st.subheader("Total Shots Fired")
+    st.markdown("<h3 style='text-align: center;'>Total Shots Fired</h3>", unsafe_allow_html=True)
     total_shots = total_shots_fired()
     if total_shots is None or not isinstance(total_shots, int):
         total_shots = 0  # Default value if total_shots is invalid
-    st.metric("", total_shots)
+    st.markdown(f"<h1 style='text-align: center;'>{total_shots}</h1>", unsafe_allow_html=True)
 
 # Display most popular gun name
 with col3:
-    st.subheader("Most Popular Gun")
+    st.markdown("<h3 style='text-align: center;'>Most Popular Gun</h3>", unsafe_allow_html=True)
     popular_gun = most_popular_gun()
     if popular_gun is None or not isinstance(popular_gun, str):
         popular_gun = "N/A"  # Default value if popular_gun is invalid
-    st.metric("", popular_gun)
+    st.markdown(f"<h1 style='text-align: center;'>{popular_gun}</h1>", unsafe_allow_html=True)
 
 # Display session details
 st.subheader("Recent Sessions")
 df = session_details()
 st.write(df)
+
+# Add a horizontal divider
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# Display Ammo section title
+st.markdown("<h2 style='text-align: center;'>Ammo Details</h2>", unsafe_allow_html=True)
+
+#Display ammo section stats in columns
+col4, col5 = st.columns(2)
+
+#Get ammo details
+ammo_df = ammo_details()
+
+# Display pie chart for ammo type distribution
+ammo_type_grouped = ammo_df.groupby('Ammo Type')['Total Rounds Fired'].sum().reset_index()
+with col4:
+    fig1 = px.pie(ammo_type_grouped, values='Total Rounds Fired', names='Ammo Type', color_discrete_sequence=px.colors.sequential.Inferno)
+    fig1.update_layout(title={'text': 'Ammo Type Distribution', 'x': 0.45, 'xanchor': 'center'})
+    st.plotly_chart(fig1)
+
+# Display pie chart for ammo caliber distribution
+ammo_caliber_grouped = ammo_df.groupby('Ammo Caliber')['Total Rounds Fired'].sum().reset_index()
+with col5:
+    fig2 = px.pie(ammo_caliber_grouped, values='Total Rounds Fired', names='Ammo Caliber', color_discrete_sequence=px.colors.sequential.Inferno)
+    fig2.update_layout(title={'text': 'Ammo Caliber Distribution', 'x': 0.45, 'xanchor': 'center'})
+    st.plotly_chart(fig2)
+
+# Add a horizontal divider
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# Display Ammo section title
+st.markdown("<h2 style='text-align: center;'>Gun Details</h2>", unsafe_allow_html=True)
+
