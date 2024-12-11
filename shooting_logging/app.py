@@ -35,16 +35,16 @@ def insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, gu
     else:
         # Insert new gun
         query = """
-            INSERT INTO gun (name, category, manufacturer, model, caliber, ownership_type, notes)
+            INSERT INTO gun (name, category, manufacturer, model, caliber, ownership_type, gun_notes)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (name, category, manufacturer, model, caliber, ownership_type, notes))
+        cursor.execute(query, (name, category, manufacturer, model, caliber, ownership_type, gun_notes))
         conn.commit()
         gun_id = cursor.lastrowid
     conn.close()
     return gun_id
 
-def insert_or_get_ammo(manufacturer, ammo_type, caliber, cost_per_round, notes):
+def insert_or_get_ammo(manufacturer, ammo_type, caliber, cost_per_round, ammo_notes):
     """Insert ammo if it doesn't exist, otherwise return its ammo_id."""
     conn = get_connection()
     cursor = conn.cursor()
@@ -60,10 +60,10 @@ def insert_or_get_ammo(manufacturer, ammo_type, caliber, cost_per_round, notes):
     else:
         # Insert new ammo
         query = """
-            INSERT INTO ammo (manufacturer, type, caliber, cost_per_round, notes)
+            INSERT INTO ammo (manufacturer, type, caliber, cost_per_round, ammo_notes)
             VALUES (%s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (manufacturer, ammo_type, caliber, cost_per_round, notes))
+        cursor.execute(query, (manufacturer, ammo_type, caliber, cost_per_round, ammo_notes))
         conn.commit()
         ammo_id = cursor.lastrowid
     conn.close()
