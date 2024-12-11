@@ -193,14 +193,14 @@ ammo_df = ammo_details()
 # Display pie chart for ammo type distribution
 ammo_type_grouped = ammo_df.groupby('Ammo Type')['Total Rounds Fired'].sum().reset_index()
 with col4:
-    fig1 = px.pie(ammo_type_grouped, values='Total Rounds Fired', names='Ammo Type', color_discrete_sequence=px.colors.sequential.Inferno)
+    fig1 = px.pie(ammo_type_grouped, values='Total Rounds Fired', names='Ammo Type', color_discrete_sequence=px.colors.sequential.RdBu)
     fig1.update_layout(title={'text': 'Ammo Type Distribution', 'x': 0.45, 'xanchor': 'center'})
     st.plotly_chart(fig1)
 
 # Display pie chart for ammo caliber distribution
 ammo_caliber_grouped = ammo_df.groupby('Ammo Caliber')['Total Rounds Fired'].sum().reset_index()
 with col5:
-    fig2 = px.pie(ammo_caliber_grouped, values='Total Rounds Fired', names='Ammo Caliber', color_discrete_sequence=px.colors.sequential.Inferno)
+    fig2 = px.pie(ammo_caliber_grouped, values='Total Rounds Fired', names='Ammo Caliber', color_discrete_sequence=px.colors.sequential.RdBu)
     fig2.update_layout(title={'text': 'Ammo Caliber Distribution', 'x': 0.45, 'xanchor': 'center'})
     st.plotly_chart(fig2)
 
@@ -245,6 +245,4 @@ with col7:
     fig3.update_layout(showlegend=False, xaxis=dict(showgrid=False, showticklabels=False))
     fig3.update(layout_coloraxis_showscale=False)
     st.plotly_chart(fig3, use_container_width=True)
-
-
 
