@@ -165,8 +165,7 @@ def fetch_recent_sessions():
         JOIN 
             ammo a ON sd.ammo_id = a.ammo_id
         ORDER BY 
-            s.date ASC, s.time ASC
-        LIMIT 5;
+            s.date ASC, s.time ASC;
     """
     cursor.execute(query)
     result = cursor.fetchall()
