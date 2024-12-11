@@ -69,7 +69,6 @@ def session_details():
         SELECT 
             s.session_id as "Session Number",
             s.date as "Date",
-            s.duration_minutes as "Duration (minutes)",
             s.target_type as "Target Type",
             g.name AS "Gun Name",
             a.manufacturer AS "Ammo Manufacturer",
