@@ -110,6 +110,31 @@ def ammo_details():
     df = fetch_data(query)
     return df
 
+#Query 6: Gun details
+#get the gun name, manufacturer, type, caliber, and total rounds fired and ammo type
+def gun_details():
+    query = """
+         SELECT 
+            g.name as "Gun Name",
+            g.manufacturer as "Gun Manufacturer",
+            g.category as "Gun Category",
+            g.caliber as "Gun Caliber",
+            SUM(sd.rounds_fired) as "Total Rounds Fired",
+            a.type as "Ammo Type"
+        FROM
+            gun g
+        JOIN
+            session_details sd ON g.gun_id = sd.gun_id
+        JOIN
+            ammo a ON sd.ammo_id = a.ammo_id
+        GROUP BY
+            g.name, g.manufacturer, g.category, g.caliber, a.type
+        ORDER BY
+            SUM(sd.rounds_fired) DESC;
+    """
+    df = fetch_data(query)
+    return df
+
 # Streamlit App
 
 # Set default colormap to inferno
@@ -184,4 +209,42 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 # Display Ammo section title
 st.markdown("<h2 style='text-align: center;'>Gun Details</h2>", unsafe_allow_html=True)
+
+# Fetch gun ranking data
+gun_ranking_df = gun_details()
+
+#Display gun section in columns
+col6, col7 = st.columns(2)
+
+#Display gun rankings
+gun_ranking_df['Total Rounds Fired'] = pd.to_numeric(gun_ranking_df['Total Rounds Fired'])
+gun_ranking_grouped = gun_ranking_df.groupby('Gun Name').agg({'Total Rounds Fired': 'sum'}).reset_index()
+with col6:
+    fig = px.bar(gun_ranking_grouped, x='Total Rounds Fired', y='Gun Name', orientation='h', title='Gun Rankings by Most Shots Fired', text='Total Rounds Fired', color='Total Rounds Fired', color_continuous_scale='Inferno')
+    fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    fig.update_layout(showlegend=False,xaxis=dict(showgrid=False, showticklabels=False))
+    fig.update(layout_coloraxis_showscale=False)
+    st.plotly_chart(fig, use_container_width=True)
+
+# Display gun category distribution
+gun_manufacturer_grouped = gun_ranking_df.groupby('Gun Manufacturer')['Total Rounds Fired'].sum().reset_index()
+gun_manufacturer_grouped['Gun Manufacturer'] = gun_manufacturer_grouped['Gun Manufacturer'].str.capitalize()
+
+with col7:
+    fig3 = px.bar(
+        gun_manufacturer_grouped, 
+        x='Total Rounds Fired', 
+        y='Gun Manufacturer', 
+        orientation='h', 
+        title='Gun Manufacturer Distribution', 
+        text='Total Rounds Fired', 
+        color='Total Rounds Fired', 
+        color_continuous_scale='Inferno'
+    )
+    fig3.update_traces(texttemplate='%{text:.2s}', textposition='outside')
+    fig3.update_layout(showlegend=False, xaxis=dict(showgrid=False, showticklabels=False))
+    fig3.update(layout_coloraxis_showscale=False)
+    st.plotly_chart(fig3, use_container_width=True)
+
+
 
