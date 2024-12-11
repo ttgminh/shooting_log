@@ -73,13 +73,25 @@ def insert_session_and_details(date, time, target_type, duration_minutes, gun_id
     """Insert a session and link it to the session_details table."""
     conn = get_connection()
     cursor = conn.cursor()
-    # Insert session
-    query = """
-        INSERT INTO session (date, time, target_type, duration_minutes)
-        VALUES (%s, %s, %s, %s)
+
+    # Check if a session for the same date already exists
+    query_check = """
+        SELECT session_id FROM session WHERE date = %s
     """
-    cursor.execute(query, (date, time, target_type, duration_minutes))
-    session_id = cursor.lastrowid
+    cursor.execute(query_check, (date,))
+    result = cursor.fetchone()
+
+    if result:
+        # If a session exists, reuse its session_id
+        session_id = result[0]
+    else:
+        # Otherwise, create a new session
+        query_insert = """
+            INSERT INTO session (date, time, target_type, duration_minutes)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(query_insert, (date, time, target_type, duration_minutes))
+        session_id = cursor.lastrowid  # Get the newly created session_id
 
     # Insert session details
     query_details = """
@@ -87,9 +99,12 @@ def insert_session_and_details(date, time, target_type, duration_minutes, gun_id
         VALUES (%s, %s, %s, %s)
     """
     cursor.execute(query_details, (session_id, gun_id, ammo_id, rounds_fired))
+
+    # Commit the changes and close the connection
     conn.commit()
     conn.close()
     return session_id
+
 
 def delete_most_recent_session():
     conn = get_connection()
