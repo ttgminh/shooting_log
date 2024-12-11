@@ -240,7 +240,7 @@ delete_password = st.text_input("Enter Password to Delete Data", type="password"
 delete_button = st.button("Delete Most Recent Session")
 if delete_button:
     #verify password
-    if password == st.secrets["EDIT_PASSWORD"]:
+    if delete_password == st.secrets["EDIT_PASSWORD"]:
         try:
             session_id = delete_most_recent_session()
             if session_id:
