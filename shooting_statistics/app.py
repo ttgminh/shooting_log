@@ -25,6 +25,7 @@ def fetch_data(query):
     return pd.DataFrame(data)
 
 # Query 1: Total time spent at the range
+@st.cache_data(ttl=600)
 def total_time_at_range():
     query = """
         SELECT SUM(duration_minutes) AS total_time
@@ -37,6 +38,7 @@ def total_time_at_range():
     return total_time
 
 # Query 2: Total number of shots fired
+@st.cache_data(ttl=600)
 def total_shots_fired():
     query = """
         SELECT SUM(rounds_fired) AS total_shots
@@ -49,6 +51,7 @@ def total_shots_fired():
     return total_shots
 
 # Query 3: Most popular gun name
+@st.cache_data(ttl=600)
 def most_popular_gun():
     query = """
         select name, count(session_details.gun_id)
@@ -63,7 +66,34 @@ def most_popular_gun():
     popular_gun = df["name"].iloc[0]
     return popular_gun
 
+# Query 7: Average Session Duration
+@st.cache_data(ttl=600)
+def avg_session_duration():
+    query = """
+        SELECT AVG(duration_minutes) AS avg_duration
+        FROM session;
+    """
+    df = fetch_data(query)
+    avg_duration = df["avg_duration"].iloc[0]
+    if isinstance(avg_duration, Decimal):
+        avg_duration = int(avg_duration)
+    return avg_duration
+
+# Query 8: Average round fired per session
+@st.cache_data(ttl=600)
+def avg_rounds_fired():
+    query = """
+        SELECT AVG(rounds_fired) AS avg_rounds_fired
+        FROM session_details;
+    """
+    df = fetch_data(query)
+    avg_rounds_fired = df["avg_rounds_fired"].iloc[0]
+    if isinstance(avg_rounds_fired, Decimal):
+        avg_rounds_fired = int(avg_rounds_fired)
+    return avg_rounds_fired
+
 #query 4: Session details
+@st.cache_data(ttl=600)
 def session_details():
     query = """
         SELECT 
@@ -90,7 +120,8 @@ def session_details():
     df = fetch_data(query)
     return df
 
-#query 5: Type of ammo used, caliber and rounds fired
+# Query 5: Type of ammo used, caliber and rounds fired
+@st.cache_data(ttl=600)
 def ammo_details():
     query = """
         SELECT 
@@ -109,8 +140,9 @@ def ammo_details():
     df = fetch_data(query)
     return df
 
-#Query 6: Gun details
+# Query 6: Gun details
 #get the gun name, manufacturer, type, caliber, and total rounds fired and ammo type
+@st.cache_data(ttl=600)
 def gun_details():
     query = """
          SELECT 
@@ -172,10 +204,25 @@ with col3:
         popular_gun = "N/A"  # Default value if popular_gun is invalid
     st.markdown(f"<h1 style='text-align: center;'>{popular_gun}</h1>", unsafe_allow_html=True)
 
-# Display session details
-st.subheader("Recent Sessions")
-df = session_details()
-st.write(df)
+# Display metrics in columns
+col1, col2 = st.columns(2)
+
+# Display average session duration
+with col1:
+    st.markdown("<h3 style='text-align: center;'>Average Session Duration</h3>", unsafe_allow_html=True)
+    avg_duration = avg_session_duration()
+    if avg_duration is None or not isinstance(avg_duration, (int, float)):
+        avg_duration = 0  # Default value if avg_duration is invalid
+    st.markdown(f"<h1 style='text-align: center;'>{avg_duration}</h1>", unsafe_allow_html=True)
+
+# Display average rounds fired per session
+with col2:
+    st.markdown("<h3 style='text-align: center;'>Average Rounds Fired per Session</h3>", unsafe_allow_html=True)
+    avg_rounds = avg_rounds_fired()
+    if avg_rounds is None or not isinstance(avg_rounds, int):
+        avg_rounds = 0  # Default value if avg_rounds is invalid
+    st.markdown(f"<h1 style='text-align: center;'>{avg_rounds}</h1>", unsafe_allow_html=True)
+
 
 # Add a horizontal divider
 st.markdown("<hr>", unsafe_allow_html=True)
@@ -245,3 +292,13 @@ with col7:
     fig3.update(layout_coloraxis_showscale=False)
     st.plotly_chart(fig3, use_container_width=True)
 
+# Add a horizontal divider
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# Display Ammo section title
+st.markdown("<h2 style='text-align: center;'>Session Details</h2>", unsafe_allow_html=True)
+
+# Display session details
+st.subheader("Recent Sessions")
+df = session_details()
+st.write(df)
