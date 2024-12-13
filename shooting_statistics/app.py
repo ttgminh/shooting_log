@@ -25,7 +25,7 @@ def fetch_data(query):
     return pd.DataFrame(data)
 
 # Query 1: Total time spent at the range
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def total_time_at_range():
     query = """
         SELECT SUM(duration_minutes) AS total_time
@@ -38,7 +38,7 @@ def total_time_at_range():
     return total_time
 
 # Query 2: Total number of shots fired
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def total_shots_fired():
     query = """
         SELECT SUM(rounds_fired) AS total_shots
@@ -51,7 +51,7 @@ def total_shots_fired():
     return total_shots
 
 # Query 3: Most popular gun name
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def most_popular_gun():
     query = """
         select name, count(session_details.gun_id)
@@ -67,7 +67,7 @@ def most_popular_gun():
     return popular_gun
 
 # Query 7: Average Session Duration
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def avg_session_duration():
     query = """
         SELECT AVG(duration_minutes) AS avg_duration
@@ -80,7 +80,7 @@ def avg_session_duration():
     return avg_duration
 
 # Query 8: Average round fired per session
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def avg_rounds_fired():
     query = """
         SELECT AVG(rounds_fired) AS avg_rounds_fired
@@ -93,7 +93,7 @@ def avg_rounds_fired():
     return avg_rounds_fired
 
 #query 4: Session details
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def session_details():
     query = """
         SELECT 
@@ -121,7 +121,7 @@ def session_details():
     return df
 
 # Query 5: Type of ammo used, caliber and rounds fired
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def ammo_details():
     query = """
         SELECT 
@@ -142,7 +142,7 @@ def ammo_details():
 
 # Query 6: Gun details
 #get the gun name, manufacturer, type, caliber, and total rounds fired and ammo type
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=60)
 def gun_details():
     query = """
          SELECT 
