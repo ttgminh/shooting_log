@@ -140,6 +140,30 @@ def delete_most_recent_session():
     else:
         conn.close()
         return None
+    
+def fetch_existing_guns():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT gun_id, name, category, manufacturer, model, caliber, ownership_type, gun_notes
+        FROM gun
+    """
+    cursor.execute(query)
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+def fetch_existing_ammo():
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    query = """
+        SELECT ammo_id, manufacturer, type, caliber, cost_per_round, ammo_notes
+        FROM ammo
+    """
+    cursor.execute(query)
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 # Function to fetch the 5 most recent sessions
 def fetch_recent_sessions():
@@ -171,8 +195,44 @@ def fetch_recent_sessions():
     result = cursor.fetchall()
     conn.close()
     return result
+
 # Streamlit Form
 st.title("Shooting Log")
+
+#Filter for existing guns and ammo first, if not present, add new gun and ammo
+    # Guns Check
+existing_guns_df = pd.DataFrame(fetch_existing_guns())
+existing_guns_df = existing_guns_df.sort_values(by='manufacturer')
+existing_guns_df['display'] = existing_guns_df.apply(
+    lambda row: f"{row['name']} - {row['ownership_type']} ({row['caliber']})", axis=1
+)
+existing_guns = existing_guns_df['display'].tolist()
+existing_guns = ["Add New Gun"] + existing_guns
+
+selected_gun_display = st.selectbox("Select Gun", existing_guns)
+
+if selected_gun_display == "Add New Gun":
+    selected_gun = "Add New Gun"
+else:
+    selected_gun = existing_guns_df.loc[existing_guns_df['display'] == selected_gun_display, 'name'].values[0]
+
+    # Ammo Check
+existing_ammo_df = pd.DataFrame(fetch_existing_ammo())
+existing_ammo_df = existing_ammo_df.sort_values(by='manufacturer')
+if selected_gun != "Add New Gun":
+    existing_ammo_df = existing_ammo_df[existing_ammo_df['caliber'] == existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'caliber'].values[0]]
+existing_ammo_df['display'] = existing_ammo_df.apply(
+    lambda row: f"{row['manufacturer']} - {row['type']} ({row['caliber']})", axis=1
+)
+existing_ammo = existing_ammo_df['display'].tolist()
+existing_ammo = existing_ammo + ["Add New Ammo"]
+
+selected_gun_display = st.selectbox("Select Ammo", existing_ammo)
+
+if selected_gun_display == "Add New Ammo":
+    selected_ammo = "Add New Ammo"
+else:
+    selected_ammo = existing_ammo_df.loc[existing_ammo_df['display'] == selected_gun_display, 'manufacturer'].values[0]
 
 with st.form("unified_form"):
     # Session Details
@@ -185,26 +245,50 @@ with st.form("unified_form"):
     duration_minutes = st.number_input("Duration (Minutes)", min_value=1)
 
     # Gun Details
-    st.subheader("Gun Details")
-    category_options=["Pistol", "Rifle", "Shotgun", "Revolver"]
-    category = st.selectbox("Category", category_options)
-    category = category.lower()
-    manufacturer = st.text_input("Manufacturer")
-    model = st.text_input("Model")
-    caliber = st.text_input("Caliber (e.g., 9mm, .22 LR)")
-    ownership_options = ["Personal", "Rental"]
-    ownership_type = st.selectbox("Ownership Type", ownership_options)
-    ownership_type = ownership_type.lower()
-    gun_notes = st.text_area("Notes (optional)")
-    name = f"{manufacturer} {model}"
+    if selected_gun == "Add New Gun":
+        st.subheader("Gun Details")
+        category_options=["Pistol", "Rifle", "Shotgun", "Revolver"]
+        category = st.selectbox("Category", category_options)
+        category = category.lower()
+        manufacturer = st.text_input("Manufacturer")
+        model = st.text_input("Model")
+        caliber_options = ["9mm", ".22 LR", ".45 ACP", ".38 Special", ".223 Rem", ".308 Win", "12 Gauge"]
+        caliber = st.selectbox("Caliber", caliber_options)
+        caliber = caliber.lower()
+        ownership_options = ["Personal", "Rental"]
+        ownership_type = st.selectbox("Ownership Type", ownership_options)
+        ownership_type = ownership_type.lower()
+        gun_notes = st.text_area("Notes (optional)")
+        name = f"{manufacturer} {model}"
+    else:
+        #enter existing gun information
+        selected_gun_id = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'gun_id'].values[0]
+        category = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'category'].values[0]
+        manufacturer = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'manufacturer'].values[0]
+        model = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'model'].values[0]
+        caliber = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'caliber'].values[0]
+        ownership_type = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'ownership_type'].values[0]
+        gun_notes = existing_guns_df.loc[existing_guns_df['name'] == selected_gun, 'gun_notes'].values[0]
+        name = selected_gun
+        
+        
 
     # Ammo Details
-    st.subheader("Ammo Details")
-    ammo_manufacturer = st.text_input("Ammo Manufacturer")
-    ammo_type = st.text_input("Ammo Type (e.g., FMJ, HP)")
-    ammo_caliber = st.text_input("Ammo Caliber (e.g., 9mm, .22 LR)")
-    cost_per_round = st.number_input("Cost Per Round", min_value=0.01, step=0.01)
-    ammo_notes = st.text_area("Ammo Notes (optional)")
+    if selected_ammo == "Add New Ammo":
+        st.subheader("Ammo Details")
+        ammo_manufacturer = st.text_input("Ammo Manufacturer")
+        ammo_type = st.text_input("Ammo Type (e.g., FMJ, HP)")
+        ammo_caliber = st.text_input("Ammo Caliber (e.g., 9mm, .22 LR)")
+        cost_per_round = st.number_input("Cost Per Round", min_value=0.01, step=0.01)
+        ammo_notes = st.text_area("Ammo Notes (optional)")
+    else:
+        #enter existing ammo information
+        selected_ammo_id = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'ammo_id'].values[0]
+        ammo_manufacturer = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'manufacturer'].values[0]
+        ammo_type = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'type'].values[0]
+        ammo_caliber = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'caliber'].values[0]
+        cost_per_round = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'cost_per_round'].values[0]
+        ammo_notes = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'ammo_notes'].values[0]
 
     # Rounds Fired
     st.subheader("Session Details - Rounds Fired")
