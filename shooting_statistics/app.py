@@ -265,6 +265,8 @@ col6, col7 = st.columns(2)
 #Display gun rankings
 gun_ranking_df['Total Rounds Fired'] = pd.to_numeric(gun_ranking_df['Total Rounds Fired'])
 gun_ranking_grouped = gun_ranking_df.groupby('Gun Name').agg({'Total Rounds Fired': 'sum'}).reset_index()
+gun_ranking_grouped = gun_ranking_grouped.sort_values(by='Total Rounds Fired', ascending=True)
+
 with col6:
     fig = px.bar(gun_ranking_grouped, x='Total Rounds Fired', y='Gun Name', orientation='h', title='Gun Rankings by Most Shots Fired', text='Total Rounds Fired', color='Total Rounds Fired', color_continuous_scale='Inferno')
     fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
@@ -272,13 +274,14 @@ with col6:
     fig.update(layout_coloraxis_showscale=False)
     st.plotly_chart(fig, use_container_width=True)
 
-# Display gun category distribution
+# Display gun manufacturer distribution
 gun_manufacturer_grouped = gun_ranking_df.groupby('Gun Manufacturer')['Total Rounds Fired'].sum().reset_index()
 gun_manufacturer_grouped['Gun Manufacturer'] = gun_manufacturer_grouped['Gun Manufacturer'].str.capitalize()
+gun_manufacturer_grouped = gun_manufacturer_grouped.sort_values(by='Total Rounds Fired', ascending=True)
 
 with col7:
     fig3 = px.bar(
-        gun_manufacturer_grouped, 
+        gun_manufacturer_grouped,   
         x='Total Rounds Fired', 
         y='Gun Manufacturer', 
         orientation='h', 
@@ -302,3 +305,16 @@ st.markdown("<h2 style='text-align: center;'>Session Details</h2>", unsafe_allow
 st.subheader("Recent Sessions")
 df = session_details()
 st.write(df)
+
+# Display the date distribution of the sessions with bar chart
+session_date_grouped = df.groupby('Date').size().reset_index(name='Count')
+session_date_grouped['Date'] = pd.to_datetime(session_date_grouped['Date'])
+
+# Group by week
+session_date_grouped['Week'] = session_date_grouped['Date'].dt.to_period('W').apply(lambda r: r.start_time)
+weekly_grouped = session_date_grouped.groupby('Week')['Count'].sum().reset_index()
+
+fig4 = px.bar(weekly_grouped, x='Week', y='Count', title='Weekly Session Date Distribution')
+fig4.update_xaxes(title_text='Week')
+fig4.update_yaxes(title_text='Count')
+st.plotly_chart(fig4)
