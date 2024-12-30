@@ -207,7 +207,7 @@ existing_guns_df['display'] = existing_guns_df.apply(
     lambda row: f"{row['name']} - {row['ownership_type']} ({row['caliber']})", axis=1
 )
 existing_guns = existing_guns_df['display'].tolist()
-existing_guns = ["Add New Gun"] + existing_guns
+existing_guns = existing_guns + ["Add New Gun"]
 
 selected_gun_display = st.selectbox("Select Gun", existing_guns)
 
