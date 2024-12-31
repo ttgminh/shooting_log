@@ -214,7 +214,7 @@ selected_gun_display = st.selectbox("Select Gun", existing_guns)
 if selected_gun_display == "Add New Gun":
     selected_gun = "Add New Gun"
 else:
-    selected_gun = existing_guns_df.loc[existing_guns_df['display'] == selected_gun_display, 'name'].values[0]
+    selected_gun = existing_guns_df.loc[existing_guns_df['display'] == selected_gun_display, 'name'].values[1]
 
     # Ammo Check
 existing_ammo_df = pd.DataFrame(fetch_existing_ammo())
@@ -292,7 +292,7 @@ with st.form("unified_form"):
 
     # Rounds Fired
     st.subheader("Session Details - Rounds Fired")
-    rounds_fired = st.number_input("Rounds Fired", min_value=1)
+    rounds_fired = st.number_input("Rounds Fired", min_value=50)
 
     # Password Field
     password = st.text_input("Enter Password to Add Data", type="password")
