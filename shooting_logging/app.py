@@ -44,7 +44,7 @@ def insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, gu
     conn.close()
     return gun_id
 
-def insert_or_get_ammo(manufacturer, ammo_type, caliber, cost_per_round, ammo_notes):
+def insert_or_get_ammo(manufacturer, ammo_type, caliber, ammo_notes):
     """Insert ammo if it doesn't exist, otherwise return its ammo_id."""
     conn = get_connection()
     cursor = conn.cursor()
@@ -60,16 +60,16 @@ def insert_or_get_ammo(manufacturer, ammo_type, caliber, cost_per_round, ammo_no
     else:
         # Insert new ammo
         query = """
-            INSERT INTO ammo (manufacturer, type, caliber, cost_per_round, ammo_notes)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO ammo (manufacturer, type, caliber, ammo_notes)
+            VALUES (%s, %s, %s, %s)
         """
-        cursor.execute(query, (manufacturer, ammo_type, caliber, cost_per_round, ammo_notes))
+        cursor.execute(query, (manufacturer, ammo_type, caliber, ammo_notes))
         conn.commit()
         ammo_id = cursor.lastrowid
     conn.close()
     return ammo_id
 
-def insert_session_and_details(date, time, target_type, duration_minutes, gun_id, ammo_id, rounds_fired):
+def insert_session_and_details(date, time, target_type, duration_minutes, gun_id, ammo_id, rounds_fired, ammo_cost_total):
     """Insert a session and link it to the session_details table."""
     conn = get_connection()
     cursor = conn.cursor()
@@ -95,10 +95,10 @@ def insert_session_and_details(date, time, target_type, duration_minutes, gun_id
 
     # Insert session details
     query_details = """
-        INSERT INTO session_details (session_id, gun_id, ammo_id, rounds_fired)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO session_details (session_id, gun_id, ammo_id, rounds_fired, ammo_cost_total)
+        VALUES (%s, %s, %s, %s, %s)
     """
-    cursor.execute(query_details, (session_id, gun_id, ammo_id, rounds_fired))
+    cursor.execute(query_details, (session_id, gun_id, ammo_id, rounds_fired, ammo_cost_total))
 
     # Commit the changes and close the connection
     conn.commit()
@@ -157,7 +157,7 @@ def fetch_existing_ammo():
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     query = """
-        SELECT ammo_id, manufacturer, type, caliber, cost_per_round, ammo_notes
+        SELECT ammo_id, manufacturer, type, caliber, ammo_notes
         FROM ammo
     """
     cursor.execute(query)
@@ -214,7 +214,7 @@ selected_gun_display = st.selectbox("Select Gun", existing_guns)
 if selected_gun_display == "Add New Gun":
     selected_gun = "Add New Gun"
 else:
-    selected_gun = existing_guns_df.loc[existing_guns_df['display'] == selected_gun_display, 'name'].values[1]
+    selected_gun = existing_guns_df.loc[existing_guns_df['display'] == selected_gun_display, 'name'].values[0]
 
     # Ammo Check
 existing_ammo_df = pd.DataFrame(fetch_existing_ammo())
@@ -279,7 +279,6 @@ with st.form("unified_form"):
         ammo_manufacturer = st.text_input("Ammo Manufacturer")
         ammo_type = st.text_input("Ammo Type (e.g., FMJ, HP)")
         ammo_caliber = st.text_input("Ammo Caliber (e.g., 9mm, .22 LR)")
-        cost_per_round = st.number_input("Cost Per Round", min_value=0.01, step=0.01)
         ammo_notes = st.text_area("Ammo Notes (optional)")
     else:
         #enter existing ammo information
@@ -287,12 +286,12 @@ with st.form("unified_form"):
         ammo_manufacturer = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'manufacturer'].values[0]
         ammo_type = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'type'].values[0]
         ammo_caliber = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'caliber'].values[0]
-        cost_per_round = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'cost_per_round'].values[0]
         ammo_notes = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'ammo_notes'].values[0]
 
     # Rounds Fired
-    st.subheader("Session Details - Rounds Fired")
+    st.subheader("Session Details - Rounds Fired and Ammo Cost")
     rounds_fired = st.number_input("Rounds Fired", min_value=50)
+    ammo_cost_total = st.number_input("Ammo Cost Total", min_value=0.0)
 
     # Password Field
     password = st.text_input("Enter Password to Add Data", type="password")
@@ -306,10 +305,10 @@ with st.form("unified_form"):
             try:
                 # Insert gun and ammo
                 gun_id = insert_or_get_gun(category, manufacturer, model, caliber, ownership_type, gun_notes)
-                ammo_id = insert_or_get_ammo(ammo_manufacturer, ammo_type, ammo_caliber, cost_per_round, ammo_notes)
+                ammo_id = insert_or_get_ammo(ammo_manufacturer, ammo_type, ammo_caliber, ammo_notes)
 
             # Insert session and link details
-                session_id = insert_session_and_details(date, time, target_type, duration_minutes, gun_id, ammo_id, rounds_fired)
+                session_id = insert_session_and_details(date, time, target_type, duration_minutes, gun_id, ammo_id, rounds_fired,ammo_cost_total)
 
                 st.success(f"Session, Gun, and Ammo added successfully! Session ID: {session_id}")
             except Exception as e:
