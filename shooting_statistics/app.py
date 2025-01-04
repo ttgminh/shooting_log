@@ -5,24 +5,19 @@ import matplotlib.pyplot as plt
 from decimal import Decimal
 import numpy as np
 import plotly.express as px
+from sqlalchemy import create_engine
 
-# Connect to AWS RDS Database
-def get_connection():
-    return mysql.connector.connect(
-        host=st.secrets["DB_HOST"],  # AWS RDS endpoint
-        user=st.secrets["DB_USERNAME"],  # Database username
-        password=st.secrets["DB_PASSWORD"],  # Database password
-        database=st.secrets["DB_NAME"]  # Database name
+# Create a SQLAlchemy engine
+def get_engine():
+    return create_engine(
+        f"mysql+mysqlconnector://{st.secrets['DB_USERNAME']}:{st.secrets['DB_PASSWORD']}@{st.secrets['DB_HOST']}/{st.secrets['DB_NAME']}"
     )
 
 # Fetch data from the database
 def fetch_data(query):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(query)
-    data = cursor.fetchall()
-    conn.close()
-    return pd.DataFrame(data)
+    engine = get_engine()
+    with engine.connect() as conn:
+        return pd.read_sql(query, conn)
 
 # Fetch all data from the database
 def fetch_all_data():
@@ -48,10 +43,7 @@ def fetch_all_data():
         JOIN 
             ammo a ON sd.ammo_id = a.ammo_id;
     """
-    conn = get_connection()
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
+    return fetch_data(query)
 
 # Streamlit App
 

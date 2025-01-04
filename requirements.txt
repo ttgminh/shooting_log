@@ -4,3 +4,4 @@ mysql-connector-python==8.3.0
 matplotlib==3.9.2
 numpy==1.23.5
 plotly-express==0.4.1
+sqlalchemy==2.0.34
