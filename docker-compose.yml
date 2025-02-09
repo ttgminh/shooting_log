@@ -7,7 +7,7 @@ services:
     ports:
       - "8501:8501"  # Map the container's Streamlit default port to host port 8501
     volumes:
-      - /mnt/StorageMain/shooting_log/secrets.toml:/app/secrets.toml
+      - /DATA/Documents/secrets.toml:/app/secrets.toml
     command: ["streamlit", "run", "shooting_logging/app.py"]
 
   statistics_app:
@@ -16,5 +16,5 @@ services:
     ports:
       - "8502:8501"  # Map the container's Streamlit default port to host port 8502
     volumes:
-      - /mnt/StorageMain/shooting_log/secrets.toml:/app/secrets.toml
+      - /DATA/Documents/secrets.toml:/app/secrets.toml
     command: ["streamlit", "run", "shooting_statistics/app.py"]
