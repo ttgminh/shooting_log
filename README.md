@@ -19,15 +19,17 @@ The Shooting Log application is designed to help users track their shooting sess
 - View and manage a list of existing guns and ammo.
 - Display metrics such as average session duration, total ammo cost, and rounds fired per session.
 - Visualize ammo caliber distribution with a pie chart.
-- Hosted on Streamlit for easy access and use.
+- Hosted on Streamlit for easy access and use, but will include a locally hosted version on home server in the near future.
 
 ## Web Application
 
-You can access the Shooting Log web application at the following URL:
+The application is currently being hosted on the streamlit server for easy availability and acess, which can be accessed in these two urls below
 
 [Session Logging](https://rangelog.streamlit.app)
 
 [Session Stats](https://rangestats.streamlit.app)
+
+I am currently in the process of containerize the application to be available on my home server also
 
 ## License
 
