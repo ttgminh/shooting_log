@@ -1,54 +1,11 @@
 import streamlit as st
-import mysql.connector
 import pandas as pd
 import matplotlib.pyplot as plt
-from decimal import Decimal
-import numpy as np
 import plotly.express as px
-from sqlalchemy import create_engine
-
-# Create a SQLAlchemy engine
-def get_engine():
-    return create_engine(
-        f"mysql+mysqlconnector://{st.secrets['DB_USERNAME']}:{st.secrets['DB_PASSWORD']}@{st.secrets['DB_HOST']}/{st.secrets['DB_NAME']}"
-    )
-
-# Fetch data from the database
-def fetch_data(query):
-    engine = get_engine()
-    with engine.connect() as conn:
-        return pd.read_sql(query, conn)
+from functions.db import fetch_all_data
 
 # Fetch all data from the database
-def fetch_all_data():
-    query = """
-        SELECT 
-            s.session_id,
-            s.date,
-            s.duration_minutes,
-            sd.rounds_fired,
-            sd.ammo_cost_total,
-            (sd.ammo_cost_total / sd.rounds_fired) AS cost_per_round,
-            g.name AS gun_name,
-            g.manufacturer AS gun_manufacturer,
-            a.type AS ammo_type,
-            a.caliber AS ammo_caliber,
-            a.manufacturer AS ammo_manufacturer
-        FROM 
-            session s
-        JOIN 
-            session_details sd ON s.session_id = sd.session_id
-        JOIN 
-            gun g ON sd.gun_id = g.gun_id
-        JOIN 
-            ammo a ON sd.ammo_id = a.ammo_id;
-    """
-    return fetch_data(query)
-
-# Streamlit App
-
-# Manipulate data with pandas
-df = fetch_all_data()
+df = pd.DataFrame(fetch_all_data())
 
 # Total time spent at the range
 total_time = df.drop_duplicates(subset='date')['duration_minutes'].sum()
@@ -63,15 +20,13 @@ popular_gun = df['gun_name'].value_counts().idxmax()
 avg_duration = round(df['duration_minutes'].mean())
 
 # Average rounds fired per session
-avg_rounds_fired = round(df['rounds_fired'].mean(),1)
+avg_rounds_fired = round(df['rounds_fired'].mean(), 1)
+
 # Total cost of ammo
 total_ammo_cost = df['ammo_cost_total'].sum()
 
 # Set default colormap to inferno
 plt.rcParams['image.cmap'] = 'inferno'
-
-#Set page configuration to wide mode
-st.set_page_config(layout="wide")
 
 # Display metrics in Streamlit
 st.title("Gun Range Statistics")
@@ -88,8 +43,8 @@ with col2:
     st.metric("Average Session Duration", f"{avg_duration} mins")
 
 with col3:
-    st.metric("Average Rounds Fired per Session", avg_rounds_fired)
     formatted_total_ammo_cost = "${:,.2f}".format(total_ammo_cost)
+    st.metric("Average Rounds Fired per Session", avg_rounds_fired)
     st.metric("Total Ammo Cost", formatted_total_ammo_cost)
 
 # Add a horizontal divider
@@ -98,12 +53,12 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # Display Ammo section title
 st.markdown("<h2 style='text-align: center;'>Ammo Details</h2>", unsafe_allow_html=True)
 
-#Display ammo section stats in columns
+# Display ammo section stats in columns
 col4, col5 = st.columns(2)
 
 # Display pie chart for ammo type distribution
 ammo_type_grouped = df.groupby('ammo_type')['rounds_fired'].sum().reset_index()
-ammo_type_grouped = ammo_type_grouped.rename(columns={'rounds_fired': 'Rounds Fired','ammo_type': 'Ammo Type'})
+ammo_type_grouped = ammo_type_grouped.rename(columns={'rounds_fired': 'Rounds Fired', 'ammo_type': 'Ammo Type'})
 with col4:
     fig1 = px.pie(ammo_type_grouped, values='Rounds Fired', names='Ammo Type', color_discrete_sequence=px.colors.sequential.RdBu)
     fig1.update_layout(title={'text': 'Ammo Type Distribution', 'x': 0.45, 'xanchor': 'center'})
@@ -120,13 +75,12 @@ with col5:
 # Add a horizontal divider
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# Display Ammo section title
+# Display Gun section title
 st.markdown("<h2 style='text-align: center;'>Gun Details</h2>", unsafe_allow_html=True)
 
-#Display gun section in columns
+# Display gun section in columns
 col6, col7 = st.columns(2)
 
-#Display gun rankings
 # Display gun rankings
 df['rounds_fired'] = pd.to_numeric(df['rounds_fired'])
 gun_ranking_grouped = df.groupby('gun_name').agg({'rounds_fired': 'sum'}).reset_index()
@@ -156,7 +110,7 @@ with col7:
 # Add a horizontal divider
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# Display Ammo section title
+# Display Session Details section title
 st.markdown("<h2 style='text-align: center;'>Session Details</h2>", unsafe_allow_html=True)
 
 # Display session details

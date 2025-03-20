@@ -1,5 +1,5 @@
 # Use an official Python slim image as the base
-FROM python:3.11
+FROM python:3.11-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 8501
 
 # Default command to run Streamlit (configurable later in docker-compose.yml)
-CMD ["streamlit", "run", "shooting_statistics/app.py"]
+CMD ["streamlit", "run", "app.py"]
