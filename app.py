@@ -11,10 +11,9 @@ st.title("🎯🔫 Minh's Shooting Progress Tracker 🎯🔫")
 
 #import pages
 dashboard_page = st.Page("dashboard.py", title="Dashboard", icon="📊")
-dashboard_page2 = st.Page("dashboard2.py", title="Dashboard2", icon="📊")
 logging_page = st.Page("logging.py", title="Logging", icon="📝")
 
 
-pg = st.navigation([dashboard_page, dashboard_page2, logging_page])
+pg = st.navigation([dashboard_page, logging_page])
 pg.run()
 

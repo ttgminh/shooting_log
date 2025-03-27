@@ -6,3 +6,5 @@ numpy==1.23.5
 plotly-express==0.4.1
 sqlalchemy==2.0.34
 altair==4.2.2
+datetime
+altair

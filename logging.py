@@ -83,7 +83,7 @@ with st.form("unified_form"):
         st.subheader("Ammo Details")
         ammo_manufacturer = st.text_input("Ammo Manufacturer")
         ammo_type = st.text_input("Ammo Type (e.g., FMJ, HP)")
-        ammo_caliber = st.text_input("Ammo Caliber (e.g., 9mm, .22 LR)")
+        ammo_caliber = st.selectbox("Caliber", ["9mm", ".22 LR", ".45 ACP", ".38 Special", ".223 Rem", ".308 Win", "12 Gauge"]).lower()
         ammo_notes = st.text_area("Ammo Notes (optional)")
     else:
         selected_ammo_id = existing_ammo_df.loc[existing_ammo_df['manufacturer'] == selected_ammo, 'ammo_id'].values[0]
@@ -116,7 +116,7 @@ with st.form("unified_form"):
             st.error("Incorrect password. Please try again.")
 
 # Password Field for Deletion
-delete_password = st.text_input("Enter Password to Delete Data", type="password")
+delete_password = st.text_input("Enter Password to Delete Most Recent Session", type="password")
 delete_button = st.button("Delete Most Recent Session")
 if delete_button:
     if verify_password(delete_password):
